@@ -8,9 +8,11 @@
     <title>After School Club</title>
     <link rel="stylesheet" href="../styling/styles.css">
     <link rel="stylesheet" href="../styling/cart.css">
+    <link rel="stylesheet" href="../styling/sorting.css">
     <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
     <script src="../js/vueJs.js"></script>
     <script src="../js/lessons.js"></script>
+
 </head>
 
 <body>
@@ -26,52 +28,70 @@
         </header>
 
         <main class="mainBody">
-            <div v-if="showProduct" class="productList"> <!-- v-if to toggle between cart / products-->
+
+            <div class="content-container">
+        
+                <!-- Sorting Dropdowns -->
+                <div class="sort-controls">
+                    <label for="sortAttribute">Sort by: </label>
+                    <select v-model="selectedSortAttribute" id="sortAttribute">
+                        <option value="subject">Subject</option>
+                        <option value="location">Location</option>
+                        <option value="price">Price</option>
+                        <option value="availableInventory">Spaces</option>
+                    </select>
+        
+                    <label for="sortOrder">Order: </label>
+                    <select v-model="selectedSortOrder" id="sortOrder">
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                </div>
+        
                 <!-- Products list -->
-                <div class="lessonsCard" v-for="product in products">
-                    <div class="image">
-                        <figure>
-                            <img v-bind:src="product.image" alt="">
-                        </figure>
-                    </div>
-
-                    <div class="details">
-                        <h1 class="subject" v-text="product.subject"></h1>
-                        <p class="location" v-text="product.location"></p>
-                        <p class="description" v-html="product.description"></p>
-                        <p class="price">{{product.price | formatPrice}}</p>
-                        <p class="availableInventory" v-text="product.availableInventory"></p>
-
-                        <!-- Conditional rendering for inventory status and add to cart button -->
-                        <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
-                            class="add-to-cart-button">
-                            Add to Cart
-                        </button>
-                        <p v-if="product.availableInventory === 0" class="out-of-stock-message">
-                            This product is out of stock.
-                        </p>
-
+                <div v-if="showProduct" class="products-container">
+                    <div class="lessonsCard" v-for="product in sortedProducts">
+                        <div class="image">
+                            <figure>
+                                <img v-bind:src="product.image" alt="">
+                            </figure>
+                        </div>
+        
+                        <div class="details">
+                            <h1 class="subject" v-text="product.subject"></h1>
+                            <p class="location" v-text="product.location"></p>
+                            <p class="description" v-html="product.description"></p>
+                            <p class="price">{{product.price | formatPrice}}</p>
+                            <p class="availableInventory" v-text="product.availableInventory"></p>
+        
+                            <!-- Conditional rendering for inventory status and add to cart button -->
+                            <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
+                                class="add-to-cart-button">
+                                Add to Cart
+                            </button>
+                            <p v-if="product.availableInventory === 0" class="out-of-stock-message">
+                                This product is out of stock.
+                            </p>
+                        </div>
                     </div>
                 </div>
-
+        
             </div>
-
-
+        
             <div v-if="isCartVisible" class="cartView">
                 <!-- Conditional message when the cart is empty -->
                 <p v-if="cart.length === 0" class="cart-empty-message">Your cart is empty</p>
-
+        
                 <!-- List of items in the cart -->
                 <div v-else class="cart-items-container">
                     <h2 class="cart-title">Cart Items</h2>
-
+        
                     <div v-for="(item, index) in cart" :key="index" class="cartItem">
                         <!-- Product Details -->
                         <h3 class="item-subject cartItem-subject">{{ item.details.subject }}</h3>
                         <p class="item-location cartItem-location">{{ item.details.location }}</p>
                         <p class="item-price">{{ item.totalPrice | formatPrice }}</p>
-
-
+        
                         <!-- Cart Item Quantity and Inventory Details -->
                         <p class="item-quantity cartItem-quantity">Quantity: {{ item.quantity }}</p>
                         <p class="item-inventory cartItem-inventory">Available Inventory: {{
@@ -79,8 +99,9 @@
                     </div>
                 </div>
             </div>
-
+        
         </main>
+        
     </div>
 
 
@@ -95,6 +116,8 @@
                 products: lessonsData,
                 cart: [],
                 isCartVisible: false,
+                selectedSortAttribute: 'subject', // Default sort attribute
+                selectedSortOrder: 'asc' // Default sort order
             },
 
             filters: {
@@ -144,7 +167,16 @@
                 cartItemCount: function () {
                     return this.cart.reduce((total, item) => total + item.quantity, 0) || '';
                 },
-                // Removed 'canAddToCart' because it's not applicable in a per-product scenario
+                sortedProducts() {
+                    return this.products.slice().sort((a, b) => {
+                        let modifier = 1;
+                        if (this.selectedSortOrder === 'desc') modifier = -1;
+                        if (a[this.selectedSortAttribute] < b[this.selectedSortAttribute]) return -1 * modifier;
+                        if (a[this.selectedSortAttribute] > b[this.selectedSortAttribute]) return 1 * modifier;
+                        return 0;
+                    });
+                }
+
 
             }
 

@@ -61,7 +61,7 @@ var lessonsData = [
         location: 'Pinner',
         description: 'Build your own future',
         price: 25,
-        availableInventory: 8,
+        availableInventory: 5,
         image: '../images/econ.jpg'
     },
     {
