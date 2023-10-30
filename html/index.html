@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>After School Club</title>
     <link rel="stylesheet" href="../styling/styles.css">
+    <link rel="stylesheet" href="../styling/cart.css">
     <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
     <script src="../js/vueJs.js"></script>
+    <script src="../js/lessons.js"></script>
 </head>
 
 <body>
@@ -23,54 +26,60 @@
         </header>
 
         <main class="mainBody">
-            <div v-if="showProduct" class="productList">  <!-- v-if to toggle between cart / products-->
+            <div v-if="showProduct" class="productList"> <!-- v-if to toggle between cart / products-->
                 <!-- Products list -->
                 <div class="lessonsCard" v-for="product in products">
-                    <div v-if="product.availableInventory > 0">
-                    
-
-
-                        <div class="image">
-                            <figure>
-                                <img v-bind:src="product.image" alt="">
-                            </figure>
-                        </div>
-
-                        <div class="details">
-                            <h1 class="subject" v-text="product.subject"></h1>
-                            <p class="location" v-text="product.location"></p>
-                            <p class="description" v-html="product.description"></p>
-                            <p class="price">{{product.price | formatPrice}}</p>
-                            <p class="availableInventory" v-text="product.availableInventory"></p>
-                            <button @click="addToCart(product)">Add to Cart</button>
-                
-                        </div>
+                    <div class="image">
+                        <figure>
+                            <img v-bind:src="product.image" alt="">
+                        </figure>
                     </div>
 
-                    <div v-else> <!-- ****** -->
-                        <p>This product is out of stock.</p> <!-- ****** -->
+                    <div class="details">
+                        <h1 class="subject" v-text="product.subject"></h1>
+                        <p class="location" v-text="product.location"></p>
+                        <p class="description" v-html="product.description"></p>
+                        <p class="price">{{product.price | formatPrice}}</p>
+                        <p class="availableInventory" v-text="product.availableInventory"></p>
+
+                        <!-- Conditional rendering for inventory status and add to cart button -->
+                        <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
+                            class="add-to-cart-button">
+                            Add to Cart
+                        </button>
+                        <p v-if="product.availableInventory === 0" class="out-of-stock-message">
+                            This product is out of stock.
+                        </p>
+
                     </div>
-
-
                 </div>
+
             </div>
 
 
             <div v-if="isCartVisible" class="cartView">
                 <!-- Conditional message when the cart is empty -->
-                <p v-if="cart.length === 0">Your cart is empty</p>
+                <p v-if="cart.length === 0" class="cart-empty-message">Your cart is empty</p>
+
                 <!-- List of items in the cart -->
-                <div v-else>
-                    <h2 class="cart-title">Cart Items</h2> <!-- Added class here -->
+                <div v-else class="cart-items-container">
+                    <h2 class="cart-title">Cart Items</h2>
+
                     <div v-for="(item, index) in cart" :key="index" class="cartItem">
-                        <h3 class="item-subject">{{ item.details.subject }}</h3> <!-- Added class here -->
-                        <p class="item-location">{{ item.details.location }}</p> <!-- Added class here -->
-                        <p class="item-price">{{ item.details.price | formatPrice }}</p> <!-- Added class here -->
-                        <p class="item-quantity">Quantity: {{ item.quantity }}</p> <!-- Added class here -->
-                        <p class="item-inventory">Available Inventory: {{ item.details.availableInventory }}</p> <!-- Added class here -->
+                        <!-- Product Details -->
+                        <h3 class="item-subject cartItem-subject">{{ item.details.subject }}</h3>
+                        <p class="item-location cartItem-location">{{ item.details.location }}</p>
+                        <p class="item-price">{{ item.totalPrice | formatPrice }}</p>
+
+
+                        <!-- Cart Item Quantity and Inventory Details -->
+                        <p class="item-quantity cartItem-quantity">Quantity: {{ item.quantity }}</p>
+                        <p class="item-inventory cartItem-inventory">Available Inventory: {{
+                            item.details.availableInventory }}</p>
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
 
@@ -83,136 +92,36 @@
             data: {
                 appName: 'After School Club',
                 showProduct: true,
-                products:[
-                    {
-                        id: 1,
-                        subject: 'Maths',
-                        location: 'Harrow',
-                        description: 'Maths is fun',
-                        price: 0,
-                        availableInventory: 5,
-                        image: '../images/maths.png'
-                    },
-                    {
-                        id: 2,
-                        subject: 'English',
-                        location: 'Watford',
-                        description: 'Learn English with us',
-                        price: 12,
-                        availableInventory: 3,
-                        image: '../images/english.jpg'
-                    },
-                    {
-                        id: 3,
-                        subject: 'Science',
-                        location: 'Ealing',
-                        description: 'Discover the wonders of science',
-                        price: 15,
-                        availableInventory: 7,
-                        image: '../images/science.jpg'
-                    },
-                    {
-                        id: 4,
-                        subject: 'History',
-                        location: 'Bushey',
-                        description: 'Explore the past with us',
-                        price: 8,
-                        availableInventory: 2,
-                        image: '../images/history.jpg'
-                    },
-                    {
-                        id: 5,
-                        subject: 'Media Studies',
-                        location: 'Leavesden',
-                        description: 'Unleash your creativity',
-                        price: 20,
-                        availableInventory: 4,
-                        image: '../images/media.jpg'
-                    },
-                    {
-                        id: 6,
-                        subject: 'Music',
-                        location: 'Burnt Oak',
-                        description: 'Learn to play an instrument',
-                        price: 18,
-                        availableInventory: 6,
-                        image: '../images/music.jpg'
-                    },
-                    {
-                        id: 7,
-                        subject: 'Enomomics',
-                        location: 'Pinner',
-                        description: 'Build your own future',
-                        price: 25,
-                        availableInventory: 8,
-                        image: '../images/econ.jpg'
-                    },
-                    {
-                        id: 8,
-                        subject: 'Religious Studies',
-                        location: 'South Harrow',
-                        description: 'Know God',
-                        price: 30,
-                        availableInventory: 10,
-                        image: '../images/rs.jpg'
-                    },
-                    {
-                        id: 9,
-                        subject: 'Drama',
-                        location: 'Harrow on the Hill',
-                        description: 'Acting and improvisation',
-                        price: 22,
-                        availableInventory: 3,
-                        image: '../images/drama.webp'
-                    },
-                    {
-                        id: 10,
-                        subject: 'Sports',
-                        location: 'Wembley',
-                        description: 'Get fit and have fun',
-                        price: 15,
-                        availableInventory: 5,
-                        image: '../images/pe.jpg'
-                    }
-                ],
-
-
+                products: lessonsData,
                 cart: [],
-
                 isCartVisible: false,
-
-
-
             },
 
             filters: {
-                formatPrice: function(price){
+                formatPrice: function (price) {
                     if (!parseInt(price)) { return "Free!"; }
-                    else{
+                    else {
                         return '£' + price.toFixed(2);
                     }
-                    
+
                 }
-            }, 
+            },
 
             methods: {
                 addToCart: function (product) {
                     if (product.availableInventory > 0) {
-                        let found = false;
-                        // Check if the product is already in the cart
-                        for (let i = 0; i < this.cart.length; i++) {
-                            if (this.cart[i].details.id === product.id) {
-                                found = true;
-                                // Increase quantity
-                                this.cart[i].quantity += 1;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            // Add the product with quantity 1
+                        let cartItem = this.cart.find(item => item.details.subject === product.subject);
+
+                        if (cartItem) {
+                            // Increase the quantity and update the total price
+                            cartItem.quantity += 1;
+                            cartItem.totalPrice += product.price;
+                        } else {
+                            // Add the product with quantity 1 and set the totalPrice
                             this.cart.push({
                                 details: product,
-                                quantity: 1
+                                quantity: 1,
+                                totalPrice: product.price
                             });
                         }
                         product.availableInventory--; // Reduce the product's inventory by one
@@ -221,6 +130,7 @@
                         this.cart = [...this.cart];
                     }
                 },
+
 
                 toggleView: function () {
                     this.isCartVisible = !this.isCartVisible; // toggle cart visibility
@@ -234,7 +144,7 @@
                 cartItemCount: function () {
                     return this.cart.reduce((total, item) => total + item.quantity, 0) || '';
                 },
-            // Removed 'canAddToCart' because it's not applicable in a per-product scenario
+                // Removed 'canAddToCart' because it's not applicable in a per-product scenario
 
             }
 
@@ -245,5 +155,5 @@
     </script>
 
 </body>
+
 </html>
-                    
