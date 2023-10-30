@@ -5,12 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>After School Club</title>
     <link rel="stylesheet" href="../styling/styles.css">
+    <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
     <script src="../js/vueJs.js"></script>
 </head>
 
 
 
 <body>
+
+    <div id="htmlSideOfApplication">
+        <!-- the header of the app, where title will be-->
+        <header class="websiteName">
+            <h1 v-text="appName"></h1>
+            <!-- add cart view and button here -->
+        </header>
+
+
+
+        <main class="mainBody">
+            <div v-if="showProduct" class="'productList">  <!-- v-if to toggle between cart / products-->
+                <!-- Products list -->
+                <div class="lesosnCard" v-for="product in products">
+
+                    <div class = "image">
+                        <figure>
+                            <img v-binf:src="product.image" alt="">
+                        </figure>
+                    </div>
+
+                    <div class="details">
+                        <h1 class="subject" v-text="product.subject"></h1>
+                        <p class="location" v-text="product.location"></p>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+        </main>
+
+
+
+
+    </div>
+
+    <script type="text/javascript">
+        var after_school_club = new Vue({
+            el: '#htmlSideOfApplication',
+            data: {
+                appName: 'After School Club',
+                products:[
+                    {
+
+                    }
+                ]
+            }
+        })
+    </script>
+
+
+
+
+
+
     
 </body>
 </html>
