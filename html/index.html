@@ -9,8 +9,6 @@
     <script src="../js/vueJs.js"></script>
 </head>
 
-
-
 <body>
 
     <div id="htmlSideOfApplication">
@@ -20,34 +18,27 @@
             <!-- add cart view and button here -->
         </header>
 
-
-
         <main class="mainBody">
             <div v-if="showProduct" class="'productList">  <!-- v-if to toggle between cart / products-->
                 <!-- Products list -->
                 <div class="lesosnCard" v-for="product in products">
+                    <div v-if="product.availableInventory > 0">
+                        <div class="image">
+                            <figure>
+                                <img v-bind:src="product.image" alt="">
+                            </figure>
+                        </div>
 
-                    <div class = "image">
-                        <figure>
-                            <img v-binf:src="product.image" alt="">
-                        </figure>
+                        <div class="details">
+                            <h1 class="subject" v-text="product.subject"></h1>
+                            <p class="location" v-text="product.location"></p>
+                            <p class="description" v-html="product.description"></p>
+                            <p class="price">{{product.price | formatPrice}}</p>
+                        </div>
                     </div>
-
-                    <div class="details">
-                        <h1 class="subject" v-text="product.subject"></h1>
-                        <p class="location" v-text="product.location"></p>
-                    </div>
-
-
-
                 </div>
             </div>
-
         </main>
-
-
-
-
     </div>
 
     <script type="text/javascript">
@@ -55,13 +46,107 @@
             el: '#htmlSideOfApplication',
             data: {
                 appName: 'After School Club',
+                showProduct: true,
                 products:[
                     {
-
+                        id: 1,
+                        subject: 'Maths',
+                        location: 'Harrow',
+                        description: 'Maths is fun',
+                        price: 10,
+                        availableInventory: 5,
+                        image: '../images/maths.png'
+                    },
+                    {
+                        id: 2,
+                        subject: 'English',
+                        location: 'London',
+                        description: 'Learn English with us',
+                        price: 12,
+                        availableInventory: 3,
+                        image: '../images/english.jpg'
+                    },
+                    {
+                        id: 3,
+                        subject: 'Science',
+                        location: 'Manchester',
+                        description: 'Discover the wonders of science',
+                        price: 15,
+                        availableInventory: 7,
+                        image: '../images/science.jpg'
+                    },
+                    {
+                        id: 4,
+                        subject: 'History',
+                        location: 'Birmingham',
+                        description: 'Explore the past with us',
+                        price: 8,
+                        availableInventory: 2,
+                        image: '../images/history.jpg'
+                    },
+                    {
+                        id: 5,
+                        subject: 'Media Studies',
+                        location: 'Liverpool',
+                        description: 'Unleash your creativity',
+                        price: 20,
+                        availableInventory: 4,
+                        image: '../images/media.jpg'
+                    },
+                    {
+                        id: 6,
+                        subject: 'Music',
+                        location: 'Leeds',
+                        description: 'Learn to play an instrument',
+                        price: 18,
+                        availableInventory: 6,
+                        image: '../images/music.jpg'
+                    },
+                    {
+                        id: 7,
+                        subject: 'Enomomics',
+                        location: 'Brighton',
+                        description: 'Build your own future',
+                        price: 25,
+                        availableInventory: 8,
+                        image: '../images/econ.jpg'
+                    },
+                    {
+                        id: 8,
+                        subject: 'Religious Studies',
+                        location: 'Bristol',
+                        description: 'Know God',
+                        price: 30,
+                        availableInventory: 10,
+                        image: '../images/rs.jpg'
+                    },
+                    {
+                        id: 9,
+                        subject: 'Drama',
+                        location: 'Oxford',
+                        description: 'Acting and improvisation',
+                        price: 22,
+                        availableInventory: 3,
+                        image: '../images/drama.webp'
+                    },
+                    {
+                        id: 10,
+                        subject: 'Sports',
+                        location: 'Cambridge',
+                        description: 'Get fit and have fun',
+                        price: 15,
+                        availableInventory: 5,
+                        image: '../images/pe.jpg'
                     }
                 ]
             }
         })
+
+    </script>
+</body>
+</html>
+                    
+           
     </script>
 
 
