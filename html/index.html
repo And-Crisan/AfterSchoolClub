@@ -21,14 +21,18 @@
         <!-- the header of the app, where title will be-->
         <header class="websiteName">
             <h1 v-text="appName"></h1>
-            <div class="search-bar">
+
+
+            <div class="search-bar" v-if="!isCartVisible">
                 <input type="text" v-model="searchQuery" @input="filterProducts" placeholder="Search lessons...">
             </div>
 
             <!-- add cart view and button here -->
-            <button v-on:click="toggleView">
+            <button v-on:click="toggleView" :disabled="cartItemCount === 0">
                 {{ isCartVisible ? 'View Products' : 'View Cart (' + cartItemCount + ')' }}
             </button>
+
+
         </header>
 
         <main class="mainBody">
@@ -37,20 +41,23 @@
             <!-- Sorting Controls -->
             <div class="sort-controls" v-if="!isCartVisible">
                 <div class="sort-option">
-                    <p>Sort by:</p>
-                    <label><input type="radio" v-model="selectedSortAttribute" value="subject"> Subject</label>
-                    <label><input type="radio" v-model="selectedSortAttribute" value="location"> Location</label>
-                    <label><input type="radio" v-model="selectedSortAttribute" value="price"> Price</label>
-                    <label><input type="radio" v-model="selectedSortAttribute" value="availableInventory">
-                        Spaces</label>
+                    <p class="sortt">Sort by:</p>
+                    <label><input type="radio" v-model="selectedSortAttribute"
+                            value="subject"><span>Subject</span></label>
+                    <label><input type="radio" v-model="selectedSortAttribute"
+                            value="location"><span>Location</span></label>
+                    <label><input type="radio" v-model="selectedSortAttribute" value="price"><span>Price</span></label>
+                    <label><input type="radio" v-model="selectedSortAttribute"
+                            value="availableInventory"><span>Spaces</span></label>
                 </div>
 
                 <div class="sort-order">
-                    <p>Order:</p>
-                    <label><input type="radio" v-model="selectedSortOrder" value="asc"> Ascending</label>
-                    <label><input type="radio" v-model="selectedSortOrder" value="desc"> Descending</label>
+                    <p class="orderr">Order:</p>
+                    <label><input type="radio" v-model="selectedSortOrder" value="asc"><span>Ascending</span></label>
+                    <label><input type="radio" v-model="selectedSortOrder" value="desc"><span>Descending</span></label>
                 </div>
             </div>
+
 
 
 
@@ -64,14 +71,14 @@
                             <img v-bind:src="product.image" alt="">
                         </figure>
                     </div>
-            
+
                     <div class="details">
                         <h1 class="subject" v-text="product.subject"></h1>
                         <p class="location" v-text="product.location"></p>
                         <p class="description" v-html="product.description"></p>
                         <p class="price">{{product.price | formatPrice}}</p>
                         <p class="availableInventory" v-text="product.availableInventory"></p>
-            
+
                         <!-- Conditional rendering for inventory status and add to cart button -->
                         <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
                             class="add-to-cart-button">
@@ -83,9 +90,8 @@
                     </div>
                 </div>
             </div>
-            
 
-            </div>
+
 
 
             <div v-if="isCartVisible" class="cartView">
@@ -100,8 +106,7 @@
                         <!-- Product Details -->
                         <h3 class="item-subject cartItem-subject">{{ item.details.subject }}</h3>
                         <p class="item-location cartItem-location">{{ item.details.location }}</p>
-                        <p class="item-price">{{ item.totalPrice | formatPrice }}</p>
-
+                        <p class="item-price cartItem-price">{{ item.totalPrice | formatPrice }}</p>
 
                         <!-- Cart Item Quantity and Inventory Details -->
                         <p class="item-quantity cartItem-quantity">Quantity: {{ item.quantity }}</p>
@@ -109,7 +114,33 @@
                             item.details.availableInventory }}</p>
                     </div>
                 </div>
+
+                <!-- Checkout Section -->
+                <div class="checkout-section">
+                    <h2 class="checkout-title">Checkout</h2>
+                
+                    <!-- Name Input -->
+                    <div class="input-group name-input">
+                        <label for="customerName" class="input-label">Name:</label>
+                        <input type="text" id="customerName" v-model="customerName" @input="validateCheckout"
+                            placeholder="Enter your name" class="checkout-input">
+                        <p v-if="!isNameValid" class="error-message">Please enter a valid name.</p>
+                    </div>
+                
+                    <!-- Phone Input -->
+                    <div class="input-group phone-input">
+                        <label for="phoneNumber" class="input-label">Phone Number:</label>
+                        <input type="text" id="phoneNumber" v-model="phoneNumber" @input="validateCheckout"
+                            placeholder="Enter your phone number" class="checkout-input">
+                        <p v-if="!isPhoneValid" class="error-message">Please enter a valid phone number.</p>
+                    </div>
+                
+                    <button @click="completeCheckout" :disabled="!isCheckoutValid"
+                        class="checkout-button">Checkout</button>
+                </div>
+                
             </div>
+
 
         </main>
     </div>
@@ -128,7 +159,10 @@
                 isCartVisible: false,
                 selectedSortAttribute: 'subject', // Default sort attribute
                 selectedSortOrder: 'asc', // Default sort order
-                searchQuery: ''
+                searchQuery: '',
+                customerName: '',
+                phoneNumber: '',
+                isCheckoutValid: false
             },
 
             filters: {
@@ -172,54 +206,58 @@
                 },
                 productCanBeAdded: function (product) {
                     return product.availableInventory > 0;
+                },
+                validateCheckout: function () {
+                    let nameRegex = /^[a-zA-Z\s]+$/;
+                    let phoneRegex = /^\d+$/;
+
+                    if (nameRegex.test(this.customerName) && phoneRegex.test(this.phoneNumber)) {
+                        this.isCheckoutValid = true;
+                    } else {
+                        this.isCheckoutValid = false;
+                    }
+                },
+
+                completeCheckout: function () {
+                    if (this.isCheckoutValid) {
+                        // Display confirmation message
+                        alert("Order has been submitted!");
+
+                        // Empty the cart
+                        this.cart = [];
+
+                        // Optionally: Reset the checkout form data
+                        this.customerName = '';
+                        this.phoneNumber = '';
+                        this.isCheckoutValid = false;
+                    }
                 }
             },
             computed: {
                 cartItemCount: function () {
-                    return this.cart.reduce((total, item) => total + item.quantity, 0) || '';
-                },
-                sortedProducts() {
-                    return this.products.slice().sort((a, b) => {
+                    return this.cart.reduce((total, item) => total + item.quantity, 0);
+                }
+                ,
+
+                sortedAndFilteredProducts() {
+                    // First filter the products
+                    let filtered = this.products;
+                    if (this.searchQuery) {
+                        filtered = this.products.filter(product => {
+                            return product.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                                product.location.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        });
+                    }
+
+                    // Then sort the filtered products
+                    return filtered.slice().sort((a, b) => {
                         let modifier = 1;
                         if (this.selectedSortOrder === 'desc') modifier = -1;
                         if (a[this.selectedSortAttribute] < b[this.selectedSortAttribute]) return -1 * modifier;
                         if (a[this.selectedSortAttribute] > b[this.selectedSortAttribute]) return 1 * modifier;
                         return 0;
                     });
-                },
-                filteredProducts() {
-                    if (this.searchQuery) {
-                        return this.products.filter(product => {
-                            return product.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                                product.location.toLowerCase().includes(this.searchQuery.toLowerCase());
-                        });
-                    } else {
-                        return this.products;
-                    }
                 }
-
-
-                ,
-                
-    sortedAndFilteredProducts() {
-        // First filter the products
-        let filtered = this.products;
-        if (this.searchQuery) {
-            filtered = this.products.filter(product => {
-                return product.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                    product.location.toLowerCase().includes(this.searchQuery.toLowerCase());
-            });
-        }
-
-        // Then sort the filtered products
-        return filtered.slice().sort((a, b) => {
-            let modifier = 1;
-            if (this.selectedSortOrder === 'desc') modifier = -1;
-            if (a[this.selectedSortAttribute] < b[this.selectedSortAttribute]) return -1 * modifier;
-            if (a[this.selectedSortAttribute] > b[this.selectedSortAttribute]) return 1 * modifier;
-            return 0;
-        });
-    }
 
 
 

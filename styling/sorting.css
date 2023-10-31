@@ -1,14 +1,15 @@
-/* General styling */
+/* Enhanced general styling */
 .sort-controls {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    background-color: #3061e7c3;
+    background-color: #f7f9fc;
     padding: 20px;
     border-radius: 10px;
     max-width: 300px;
     margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     height: 400px;
 }
 
@@ -18,13 +19,47 @@
     gap: 12px;
 }
 
+.sortt, .orderr {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #444;
+}
 
-
+/* Button-like labels */
 label {
+    display: inline-block;
     position: relative;
-    padding-left: 30px;  /* to leave space for custom radio button */
+    padding-left: 30px;
     cursor: pointer;
     font-size: 16px;
+    border: 2px solid #3061e7;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    margin-right: 5px; /* A bit of space between the options */
+}
+
+label span {
+    padding: 5px 10px; /* Adjust as per your design requirement */
+    display: block;
+}
+
+label:hover {
+    border-color: #1a4acb; /* Slightly darker shade for hover */
+}
+
+label input[type="radio"] {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    opacity: 0;
+    cursor: pointer;
+}
+
+label input[type="radio"]:checked + span {
+    background-color: #3061e7;
+    color: white;
+    border-radius: 18px; /* Ensure it matches the border-radius of the label to fill the whole button */
 }
 
 
