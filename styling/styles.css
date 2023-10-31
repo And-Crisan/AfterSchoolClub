@@ -31,17 +31,6 @@ body {
     margin: 0 auto;
 }
 
-.add-to-cart-button:disabled {
-    background-color: #ddd;
-    color: #aaa;
-    cursor: not-allowed;
-}
-.out-of-stock-message {
-    color: red;
-    font-size: 12px;
-}
-
-
 .lessonsCard {
     box-sizing: border-box;
     width: 48%; /* For 2 items per line with a 2% gap between them */

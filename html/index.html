@@ -21,6 +21,10 @@
         <!-- the header of the app, where title will be-->
         <header class="websiteName">
             <h1 v-text="appName"></h1>
+            <div class="search-bar">
+                <input type="text" v-model="searchQuery" @input="filterProducts" placeholder="Search lessons...">
+            </div>
+
             <!-- add cart view and button here -->
             <button v-on:click="toggleView">
                 {{ isCartVisible ? 'View Products' : 'View Cart (' + cartItemCount + ')' }}
@@ -29,69 +33,76 @@
 
         <main class="mainBody">
 
-            <div class="content-container">
-        
-                <!-- Sorting Dropdowns -->
-                <div class="sort-controls">
-                    <label for="sortAttribute">Sort by: </label>
-                    <select v-model="selectedSortAttribute" id="sortAttribute">
-                        <option value="subject">Subject</option>
-                        <option value="location">Location</option>
-                        <option value="price">Price</option>
-                        <option value="availableInventory">Spaces</option>
-                    </select>
-        
-                    <label for="sortOrder">Order: </label>
-                    <select v-model="selectedSortOrder" id="sortOrder">
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
+
+            <!-- Sorting Controls -->
+            <div class="sort-controls" v-if="!isCartVisible">
+                <div class="sort-option">
+                    <p>Sort by:</p>
+                    <label><input type="radio" v-model="selectedSortAttribute" value="subject"> Subject</label>
+                    <label><input type="radio" v-model="selectedSortAttribute" value="location"> Location</label>
+                    <label><input type="radio" v-model="selectedSortAttribute" value="price"> Price</label>
+                    <label><input type="radio" v-model="selectedSortAttribute" value="availableInventory">
+                        Spaces</label>
                 </div>
-        
+
+                <div class="sort-order">
+                    <p>Order:</p>
+                    <label><input type="radio" v-model="selectedSortOrder" value="asc"> Ascending</label>
+                    <label><input type="radio" v-model="selectedSortOrder" value="desc"> Descending</label>
+                </div>
+            </div>
+
+
+
+
+
+            <div v-if="showProduct" class="productList"> <!-- v-if to toggle between cart / products-->
                 <!-- Products list -->
-                <div v-if="showProduct" class="products-container">
-                    <div class="lessonsCard" v-for="product in sortedProducts">
-                        <div class="image">
-                            <figure>
-                                <img v-bind:src="product.image" alt="">
-                            </figure>
-                        </div>
-        
-                        <div class="details">
-                            <h1 class="subject" v-text="product.subject"></h1>
-                            <p class="location" v-text="product.location"></p>
-                            <p class="description" v-html="product.description"></p>
-                            <p class="price">{{product.price | formatPrice}}</p>
-                            <p class="availableInventory" v-text="product.availableInventory"></p>
-        
-                            <!-- Conditional rendering for inventory status and add to cart button -->
-                            <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
-                                class="add-to-cart-button">
-                                Add to Cart
-                            </button>
-                            <p v-if="product.availableInventory === 0" class="out-of-stock-message">
-                                This product is out of stock.
-                            </p>
-                        </div>
+                <div class="lessonsCard" v-for="product in sortedAndFilteredProducts">
+                    <div class="image">
+                        <figure>
+                            <img v-bind:src="product.image" alt="">
+                        </figure>
+                    </div>
+            
+                    <div class="details">
+                        <h1 class="subject" v-text="product.subject"></h1>
+                        <p class="location" v-text="product.location"></p>
+                        <p class="description" v-html="product.description"></p>
+                        <p class="price">{{product.price | formatPrice}}</p>
+                        <p class="availableInventory" v-text="product.availableInventory"></p>
+            
+                        <!-- Conditional rendering for inventory status and add to cart button -->
+                        <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
+                            class="add-to-cart-button">
+                            Add to Cart
+                        </button>
+                        <p v-if="product.availableInventory === 0" class="out-of-stock-message">
+                            This product is out of stock.
+                        </p>
                     </div>
                 </div>
-        
             </div>
-        
+            
+
+            </div>
+
+
             <div v-if="isCartVisible" class="cartView">
                 <!-- Conditional message when the cart is empty -->
                 <p v-if="cart.length === 0" class="cart-empty-message">Your cart is empty</p>
-        
+
                 <!-- List of items in the cart -->
                 <div v-else class="cart-items-container">
                     <h2 class="cart-title">Cart Items</h2>
-        
+
                     <div v-for="(item, index) in cart" :key="index" class="cartItem">
                         <!-- Product Details -->
                         <h3 class="item-subject cartItem-subject">{{ item.details.subject }}</h3>
                         <p class="item-location cartItem-location">{{ item.details.location }}</p>
                         <p class="item-price">{{ item.totalPrice | formatPrice }}</p>
-        
+
+
                         <!-- Cart Item Quantity and Inventory Details -->
                         <p class="item-quantity cartItem-quantity">Quantity: {{ item.quantity }}</p>
                         <p class="item-inventory cartItem-inventory">Available Inventory: {{
@@ -99,9 +110,8 @@
                     </div>
                 </div>
             </div>
-        
+
         </main>
-        
     </div>
 
 
@@ -117,7 +127,8 @@
                 cart: [],
                 isCartVisible: false,
                 selectedSortAttribute: 'subject', // Default sort attribute
-                selectedSortOrder: 'asc' // Default sort order
+                selectedSortOrder: 'asc', // Default sort order
+                searchQuery: ''
             },
 
             filters: {
@@ -175,7 +186,41 @@
                         if (a[this.selectedSortAttribute] > b[this.selectedSortAttribute]) return 1 * modifier;
                         return 0;
                     });
+                },
+                filteredProducts() {
+                    if (this.searchQuery) {
+                        return this.products.filter(product => {
+                            return product.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                                product.location.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        });
+                    } else {
+                        return this.products;
+                    }
                 }
+
+
+                ,
+                
+    sortedAndFilteredProducts() {
+        // First filter the products
+        let filtered = this.products;
+        if (this.searchQuery) {
+            filtered = this.products.filter(product => {
+                return product.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                    product.location.toLowerCase().includes(this.searchQuery.toLowerCase());
+            });
+        }
+
+        // Then sort the filtered products
+        return filtered.slice().sort((a, b) => {
+            let modifier = 1;
+            if (this.selectedSortOrder === 'desc') modifier = -1;
+            if (a[this.selectedSortAttribute] < b[this.selectedSortAttribute]) return -1 * modifier;
+            if (a[this.selectedSortAttribute] > b[this.selectedSortAttribute]) return 1 * modifier;
+            return 0;
+        });
+    }
+
 
 
             }

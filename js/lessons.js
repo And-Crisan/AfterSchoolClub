@@ -57,7 +57,7 @@ var lessonsData = [
     },
     {
         id: 7,
-        subject: 'Enomomics',
+        subject: 'Economics',
         location: 'Pinner',
         description: 'Build your own future',
         price: 25,
