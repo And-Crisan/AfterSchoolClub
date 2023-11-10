@@ -8,7 +8,7 @@ var lessonsData = [
         description: 'Maths is fun',
         price: 0,
         availableInventory: 5,
-        image: 'images/maths.jpg'
+        image: 'images/maths.png'
     },
     {
         id: 2,
