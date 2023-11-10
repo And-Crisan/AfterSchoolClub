@@ -8,7 +8,7 @@ var lessonsData = [
         description: 'Maths is fun',
         price: 0,
         availableInventory: 5,
-        image: '../images/maths.png'
+        image: 'images/maths.jpg'
     },
     {
         id: 2,
@@ -17,7 +17,7 @@ var lessonsData = [
         description: 'Learn English with us',
         price: 12,
         availableInventory: 5,
-        image: '../images/english.jpg'
+        image: 'images/english.jpg'
     },
     {
         id: 3,
@@ -26,7 +26,7 @@ var lessonsData = [
         description: 'Discover the wonders of science',
         price: 15,
         availableInventory: 5,
-        image: '../images/science.jpg'
+        image: 'images/science.jpg'
     },
     {
         id: 4,
@@ -35,7 +35,7 @@ var lessonsData = [
         description: 'Explore the past with us',
         price: 8,
         availableInventory: 5,
-        image: '../images/history.jpg'
+        image: 'images/history.jpg'
     },
     {
         id: 5,
@@ -44,7 +44,7 @@ var lessonsData = [
         description: 'Unleash your creativity',
         price: 20,
         availableInventory: 5,
-        image: '../images/media.jpg'
+        image: 'images/media.jpg'
     },
     {
         id: 6,
@@ -53,7 +53,7 @@ var lessonsData = [
         description: 'Learn to play an instrument',
         price: 18,
         availableInventory: 5,
-        image: '../images/music.jpg'
+        image: 'images/music.jpg'
     },
     {
         id: 7,
@@ -62,7 +62,7 @@ var lessonsData = [
         description: 'Build your own future',
         price: 25,
         availableInventory: 5,
-        image: '../images/econ.jpg'
+        image: 'images/econ.jpg'
     },
     {
         id: 8,
@@ -71,7 +71,7 @@ var lessonsData = [
         description: 'Know God',
         price: 30,
         availableInventory: 5,
-        image: '../images/rs.jpg'
+        image: 'images/rs.jpg'
     },
     {
         id: 9,
@@ -80,7 +80,7 @@ var lessonsData = [
         description: 'Acting and improvisation',
         price: 22,
         availableInventory: 5,
-        image: '../images/drama.webp'
+        image: 'images/drama.webp'
     },
     {
         id: 10,
@@ -89,7 +89,7 @@ var lessonsData = [
         description: 'Get fit and have fun',
         price: 15,
         availableInventory: 5,
-        image: '../images/pe.jpg'
+        image: 'images/pe.jpg'
     }
 ]
 
