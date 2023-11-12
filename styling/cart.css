@@ -63,10 +63,10 @@ button[disabled] {
 /* Checkout Styles */
 .checkout-section {
     flex: 1;  /* Take the remaining space after cart items */
-    padding: 20px;
+    padding: 25px;
     border-left: 1px solid #ddd;
     margin-left: 2%;
-    background-color: #f8f8f8;
+    background-color: #c31a1a;
     border-radius: 10px;
 }
 
@@ -74,7 +74,7 @@ button[disabled] {
     text-align: center;
     margin-bottom: 20px;
     font-size: 24px;
-    color: #333;
+    color: #ec0808;
 }
 
 .input-group {
@@ -90,7 +90,7 @@ button[disabled] {
 .checkout-button {
     width: 100%;
     padding: 15px;
-    background-color: #3061e7;
+    background-color: #bd1c1c;
     color: #fff;
     border: none;
     border-radius: 5px;

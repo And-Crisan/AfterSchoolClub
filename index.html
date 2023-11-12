@@ -16,74 +16,104 @@
 </head>
 
 <body>
-
     <div id="htmlSideOfApplication">
-        <!-- the header of the app, where title will be-->
+        <!-- Header section of the application containing the title and search functionality -->
         <header class="websiteName">
+            <!-- Dynamically displays the application name bound by Vue's v-text directive -->
             <h1 v-text="appName"></h1>
 
-
+            <!-- Search bar is conditionally displayed unless the cart view is active -->
+            <!-- The search functionality is reactive to user input -->
             <div class="search-bar" v-if="!isCartVisible">
+                <!-- The v-model directive creates a two-way binding on the input field to the searchQuery property -->
+                <!-- The filterProducts method is invoked on each input event to filter the product list -->
                 <input type="text" v-model="searchQuery" @input="filterProducts" placeholder="Search lessons...">
             </div>
 
-            <!-- add cart view and button here -->
+            <!-- Button to toggle between cart view and product view -->
+            <!-- Button is disabled when cart is empty, indicated by cartItemCount being 0 -->
+            <!-- The text of the button changes dynamically based on the isCartVisible boolean -->
             <button v-on:click="toggleView" :disabled="cartItemCount === 0">
                 {{ isCartVisible ? 'View Products' : 'View Cart (' + cartItemCount + ')' }}
             </button>
 
-
         </header>
 
+
         <main class="mainBody">
-
-
-            <!-- Sorting Controls -->
+            <!-- Section for sorting the list of lessons; only displayed when cart is not visible -->
             <div class="sort-controls" v-if="!isCartVisible">
+                <!-- Sorting options allow the user to sort by subject, location, price, or spaces -->
                 <div class="sort-option">
                     <p class="sortt">Sort by:</p>
-                    <label><input type="radio" v-model="selectedSortAttribute"
-                            value="subject"><span>Subject</span></label>
-                    <label><input type="radio" v-model="selectedSortAttribute"
-                            value="location"><span>Location</span></label>
-                    <label><input type="radio" v-model="selectedSortAttribute" value="price"><span>Price</span></label>
-                    <label><input type="radio" v-model="selectedSortAttribute"
-                            value="availableInventory"><span>Spaces</span></label>
+                    <!-- Radio buttons bound with Vue's v-model for reactive sorting attribute selection -->
+                    <label>
+                        <input type="radio" v-model="selectedSortAttribute" value="subject">
+                        <span>Subject</span>
+                    </label>
+                    <label>
+                        <input type="radio" v-model="selectedSortAttribute" value="location">
+                        <span>Location</span>
+                    </label>
+                    <label>
+                        <input type="radio" v-model="selectedSortAttribute" value="price">
+                        <span>Price</span>
+                    </label>
+                    <label>
+                        <input type="radio" v-model="selectedSortAttribute" value="availableInventory">
+                        <span>Spaces</span>
+                    </label>
                 </div>
 
+                <!-- Sort order options allow the user to select ascending or descending sort order -->
                 <div class="sort-order">
                     <p class="orderr">Order:</p>
-                    <label><input type="radio" v-model="selectedSortOrder" value="asc"><span>Ascending</span></label>
-                    <label><input type="radio" v-model="selectedSortOrder" value="desc"><span>Descending</span></label>
+                    <!-- Radio buttons bound with Vue's v-model for reactive sorting order selection -->
+                    <label>
+                        <input type="radio" v-model="selectedSortOrder" value="asc">
+                        <span>Ascending</span>
+                    </label>
+                    <label>
+                        <input type="radio" v-model="selectedSortOrder" value="desc">
+                        <span>Descending</span>
+                    </label>
                 </div>
             </div>
 
 
 
+            <div v-if="showProduct" class="productList">
+                <!-- Conditionally rendered section for displaying products or lessons. 
+                     'showProduct' flag controls the visibility of product list versus cart view. -->
 
-
-
-            <div v-if="showProduct" class="productList"> <!-- v-if to toggle between cart / products-->
-                <!-- Products list -->
+                <!-- Iterative rendering of product cards using Vue's v-for directive to create a list based on sorted and filtered products. -->
                 <div class="lessonsCard" v-for="product in sortedAndFilteredProducts">
+
+                    <!-- Product image section with dynamic source binding using v-bind -->
                     <div class="image">
                         <figure>
-                            <img v-bind:src="product.image" alt="">
+                            <img v-bind:src="product.image" alt="Image of the product">
                         </figure>
                     </div>
 
+                    <!-- Product details section displaying subject, location, description, and price -->
                     <div class="details">
+                        <!-- v-text directive is used for text content to automatically escape HTML and prevent XSS attacks -->
                         <h1 class="subject" v-text="product.subject"></h1>
                         <p class="location" v-text="product.location"></p>
+                        <!-- v-html is used here to render HTML from a product's description. Use with caution to prevent XSS. -->
                         <p class="description" v-html="product.description"></p>
-                        <p class="price">{{product.price | formatPrice}}</p>
+                        <!-- Price is displayed and formatted using a Vue filter -->
+                        <p class="price">{{ product.price | formatPrice }}</p>
+                        <!-- Shows the number of available spaces for the lesson -->
                         <p class="availableInventory" v-text="product.availableInventory"></p>
 
-                        <!-- Conditional rendering for inventory status and add to cart button -->
+                        <!-- Add to Cart button is conditionally disabled if inventory is zero and triggers addToCart method on click -->
                         <button @click="addToCart(product)" :disabled="product.availableInventory === 0"
                             class="add-to-cart-button">
                             Add to Cart
                         </button>
+                        <!-- Display an out-of-stock message if there are no available spaces left for the lesson -->
                         <p v-if="product.availableInventory === 0" class="out-of-stock-message">
                             This product is out of stock.
                         </p>
@@ -92,54 +122,60 @@
             </div>
 
 
-
-
+            <!-- Cart View -->
             <div v-if="isCartVisible" class="cartView">
-                <!-- Conditional message when the cart is empty -->
+                <!-- Displays a message if the cart array is empty -->
                 <p v-if="cart.length === 0" class="cart-empty-message">Your cart is empty</p>
 
-                <!-- List of items in the cart -->
-                <div v-else class="cart-items-container">
-                    <h2 class="cart-title">Cart Items</h2>
+                <!-- This block is rendered when there are items in the cart -->
+                <div v-else>
+                    <!-- Container for listed items in the cart -->
+                    <div class="cart-items-container">
+                        <!-- Title for the cart items section -->
+                        <h2 class="cart-title">Cart Items</h2>
+                        <!-- Iterates over each item in the cart array -->
+                        <div v-for="(item, index) in cart" :key="index" class="cartItem">
+                            <!-- Display product details with quantity and total price -->
+                            <h3 class="item-subject cartItem-subject">{{ item.details.subject }}</h3>
+                            <p class="item-location cartItem-location">{{ item.details.location }}</p>
+                            <p class="item-price cartItem-price">{{ item.totalPrice | formatPrice }}</p>
+                            <p class="item-quantity cartItem-quantity">Quantity: {{ item.quantity }}</p>
+                            <!-- Buttons to remove items individually or the entire quantity -->
+                            <button @click="removeOneItem(item)" :disabled="item.quantity === 0">Remove 1</button>
+                            <button @click="removeAllFromCart(item)">Remove All</button>
+                        </div>
+                    </div>
 
-                    <div v-for="(item, index) in cart" :key="index" class="cartItem">
-                        <!-- Product Details -->
-                        <h3 class="item-subject cartItem-subject">{{ item.details.subject }}</h3>
-                        <p class="item-location cartItem-location">{{ item.details.location }}</p>
-                        <p class="item-price cartItem-price">{{ item.totalPrice | formatPrice }}</p>
-
-                        <!-- Cart Item Quantity and Inventory Details -->
-                        <p class="item-quantity cartItem-quantity">Quantity: {{ item.quantity }}</p>
-                        <p class="item-inventory cartItem-inventory">Available Inventory: {{
-                            item.details.availableInventory }}</p>
+                    <!-- Checkout section for finalizing the cart items purchase -->
+                    <div class="checkout-section">
+                        <!-- Heading for the checkout section -->
+                        <h2 class="checkout-title">Checkout</h2>
+                        <!-- Input field for customer name with validation -->
+                        <div class="input-group name-input">
+                            <label for="customerName" class="input-label">Name:</label>
+                            <input type="text" id="customerName" v-model="customerName" @input="validateCheckout"
+                                placeholder="Enter your name" class="checkout-input">
+                            <!-- Error message for invalid name input -->
+                            <p v-if="!isNameValid" class="error-message">Please enter a valid name.</p>
+                        </div>
+                        <!-- Input field for phone number with validation -->
+                        <div class="input-group phone-input">
+                            <label for="phoneNumber" class="input-label">Phone Number:</label>
+                            <input type="text" id="phoneNumber" v-model="phoneNumber" @input="validateCheckout"
+                                placeholder="Enter your phone number" class="checkout-input">
+                            <!-- Error message for invalid phone number input -->
+                            <p v-if="!isPhoneValid" class="error-message">Please enter a valid phone number.</p>
+                        </div>
+                        <!-- Button to trigger the checkout process, disabled if checkout validation fails -->
+                        <button @click="completeCheckout" :disabled="!isCheckoutValid"
+                            class="checkout-button">Checkout</button>
                     </div>
                 </div>
-
-                <!-- Checkout Section -->
-                <div class="checkout-section">
-                    <h2 class="checkout-title">Checkout</h2>
-                
-                    <!-- Name Input -->
-                    <div class="input-group name-input">
-                        <label for="customerName" class="input-label">Name:</label>
-                        <input type="text" id="customerName" v-model="customerName" @input="validateCheckout"
-                            placeholder="Enter your name" class="checkout-input">
-                        <p v-if="!isNameValid" class="error-message">Please enter a valid name.</p>
-                    </div>
-                
-                    <!-- Phone Input -->
-                    <div class="input-group phone-input">
-                        <label for="phoneNumber" class="input-label">Phone Number:</label>
-                        <input type="text" id="phoneNumber" v-model="phoneNumber" @input="validateCheckout"
-                            placeholder="Enter your phone number" class="checkout-input">
-                        <p v-if="!isPhoneValid" class="error-message">Please enter a valid phone number.</p>
-                    </div>
-                
-                    <button @click="completeCheckout" :disabled="!isCheckoutValid"
-                        class="checkout-button">Checkout</button>
-                </div>
-                
             </div>
+
+
+
+
 
 
         </main>
@@ -149,119 +185,185 @@
 
 
     <script type="text/javascript">
+        // Initialize Vue instance for the after school club application
         var after_school_club = new Vue({
-            el: '#htmlSideOfApplication',
+            el: '#htmlSideOfApplication', // Connects the Vue instance to the DOM element with this ID
             data: {
-                appName: 'After School Club',
-                showProduct: true,
-                products: lessonsData,
-                cart: [],
-                isCartVisible: false,
-                selectedSortAttribute: 'subject', // Default sort attribute
-                selectedSortOrder: 'asc', // Default sort order
-                searchQuery: '',
-                customerName: '',
-                phoneNumber: '',
-                isCheckoutValid: false
+                appName: 'After School Club', // The name of the application, used in the header
+                showProduct: true, // Flag to toggle between product list and cart view
+                products: lessonsData, // The initial array of products, populated with lesson data
+                cart: [], // Array to hold products added to the shopping cart
+                isCartVisible: false, // Flag to control the visibility of the cart view
+                selectedSortAttribute: 'subject', // Default attribute to sort the product list
+                selectedSortOrder: 'asc', // Default order for sorting (ascending)
+                searchQuery: '', // Model for the search bar input to filter products
+                customerName: '', // Model for the customer's name input at checkout
+                phoneNumber: '', // Model for the customer's phone number input at checkout
+                isCheckoutValid: false // Flag to enable or disable the checkout button
             },
 
             filters: {
+                // Custom Vue filter to format price values
                 formatPrice: function (price) {
-                    if (!parseInt(price)) { return "Free!"; }
+                    // Checks if the price is not a number or zero, returns "Free!" if so
+                    if (!parseInt(price)) {
+                        return "Free!";
+                    }
+                    // If price is a valid number, formats it as currency with two decimal places
                     else {
                         return '£' + price.toFixed(2);
                     }
-
                 }
             },
 
+
+
+
+
             methods: {
+
+                // Method to remove a single quantity of an item from the cart
+                removeOneItem: function (itemToRemove) {
+                    // Attempt to find the matching cart item by its id
+                    let cartItem = this.cart.find(item => item.details.id === itemToRemove.details.id);
+
+                    // If the item exists and the quantity is greater than 0
+                    if (cartItem && cartItem.quantity > 0) {
+                        // Decrease the item's quantity in the cart and adjust the total price accordingly
+                        cartItem.quantity -= 1;
+                        cartItem.totalPrice -= itemToRemove.details.price;
+
+                        // If the quantity drops to 0, filter the item out of the cart array
+                        if (cartItem.quantity === 0) {
+                            this.cart = this.cart.filter(item => item.details.id !== itemToRemove.details.id);
+                        }
+
+                        // Find the corresponding product in the products list and increment its available inventory
+                        let productToUpdate = this.products.find(product => product.id === itemToRemove.details.id);
+                        if (productToUpdate) {
+                            productToUpdate.availableInventory += 1;
+                        }
+                    }
+                },
+                // Method to remove all quantities of a specific item from the cart
+                removeAllFromCart: function (itemToRemove) {
+                    // Filter out the item from the cart by comparing the item's id
+                    this.cart = this.cart.filter(item => item.details.id !== itemToRemove.details.id);
+
+                    // Locate the product in the products list to update its inventory
+                    let productToUpdate = this.products.find(product => product.id === itemToRemove.details.id);
+                    if (productToUpdate) {
+                        // Replenish the available inventory by the quantity that was in the cart
+                        productToUpdate.availableInventory += itemToRemove.quantity;
+                    }
+                },
+
+                // Method to add a product to the cart
                 addToCart: function (product) {
+                    // Only proceed if there is inventory available for the product
                     if (product.availableInventory > 0) {
+                        // Attempt to find the product in the cart
                         let cartItem = this.cart.find(item => item.details.subject === product.subject);
 
                         if (cartItem) {
-                            // Increase the quantity and update the total price
+                            // If the product is already in the cart, increase the quantity and update the total price
                             cartItem.quantity += 1;
                             cartItem.totalPrice += product.price;
                         } else {
-                            // Add the product with quantity 1 and set the totalPrice
+                            // If the product is not in the cart, add it with a quantity of 1 and set the initial totalPrice
                             this.cart.push({
                                 details: product,
                                 quantity: 1,
                                 totalPrice: product.price
                             });
                         }
-                        product.availableInventory--; // Reduce the product's inventory by one
+                        // Decrease the available inventory of the product by one
+                        product.availableInventory--;
 
-                        // Important: Make a fresh copy of the cart to trigger reactivity
+                        // Create a fresh copy of the cart array to ensure reactivity within Vue's rendering system
                         this.cart = [...this.cart];
                     }
                 },
 
 
+                // Method to toggle the visibility of the cart and the product list
                 toggleView: function () {
-                    this.isCartVisible = !this.isCartVisible; // toggle cart visibility
-                    this.showProduct = !this.showProduct; // toggle product visibility
+                    this.isCartVisible = !this.isCartVisible; // Toggles the boolean controlling cart visibility
+                    this.showProduct = !this.showProduct; // Simultaneously toggles the product list visibility
                 },
+
+
+                // Method to check if a product can be added to the cart based on its inventory
                 productCanBeAdded: function (product) {
+                    // Returns true if the product's available inventory is greater than zero
                     return product.availableInventory > 0;
                 },
+
+                // Method to validate the customer's checkout information
                 validateCheckout: function () {
+                    // Regex patterns to validate name (alphabetical and space characters only) and phone number (digits only)
                     let nameRegex = /^[a-zA-Z\s]+$/;
                     let phoneRegex = /^\d+$/;
 
+                    // Tests the customer's name and phone number against the regex patterns
                     if (nameRegex.test(this.customerName) && phoneRegex.test(this.phoneNumber)) {
-                        this.isCheckoutValid = true;
+                        this.isCheckoutValid = true; // Sets the checkout as valid if both tests pass
                     } else {
-                        this.isCheckoutValid = false;
+                        this.isCheckoutValid = false; // Sets the checkout as invalid if either test fails
                     }
                 },
 
+
+                // Method to complete the checkout process
                 completeCheckout: function () {
+                    // Only proceed if the checkout data is valid
                     if (this.isCheckoutValid) {
-                        // Display confirmation message
+                        // Displays an alert to the user confirming the order submission
                         alert("Order has been submitted!");
 
-                        // Empty the cart
+                        // Resets the cart to an empty array, effectively emptying it
                         this.cart = [];
 
-                        // Optionally: Reset the checkout form data
+                        // Optionally resets the checkout form by clearing the customer's name and phone number
                         this.customerName = '';
                         this.phoneNumber = '';
-                        this.isCheckoutValid = false;
+                        this.isCheckoutValid = false; // Resets the checkout validation state
                     }
                 }
             },
-            computed: {
-                cartItemCount: function () {
-                    return this.cart.reduce((total, item) => total + item.quantity, 0);
-                }
-                ,
 
+
+            computed: {
+                // Computed property to count the total number of items in the cart
+                cartItemCount: function () {
+                    // Uses the reduce method to sum up the quantity of each item in the cart
+                    return this.cart.reduce((total, item) => total + item.quantity, 0);
+                },
+
+                // Computed property to get the list of products, sorted and filtered
                 sortedAndFilteredProducts() {
-                    // First filter the products
+                    // Initial filter applied to products based on the search query
                     let filtered = this.products;
                     if (this.searchQuery) {
                         filtered = this.products.filter(product => {
+                            // Filter products by subject or location matching the search query (case-insensitive)
                             return product.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                                 product.location.toLowerCase().includes(this.searchQuery.toLowerCase());
                         });
                     }
 
-                    // Then sort the filtered products
+                    // Sorting the filtered products based on the selected attribute and order
                     return filtered.slice().sort((a, b) => {
+                        // Modifier determines the direction of the sort
                         let modifier = 1;
                         if (this.selectedSortOrder === 'desc') modifier = -1;
                         if (a[this.selectedSortAttribute] < b[this.selectedSortAttribute]) return -1 * modifier;
                         if (a[this.selectedSortAttribute] > b[this.selectedSortAttribute]) return 1 * modifier;
-                        return 0;
+                        return 0; // If equal, the order remains unchanged
                     });
                 }
-
-
-
             }
+
 
 
 
